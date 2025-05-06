@@ -60,15 +60,17 @@ end
 
 local function generate_list()
 	list = level_io.load("list.txt")
-	if not list.levels then
+	if not list then
 		list = { levels = table.slice(file_browser.contents, 2) }
+	elseif not list.levels then
+		msg:show("file is not a valid list.", "error")
 	end
 	list.ids = index_table(list.levels)
 end
 
 local function set_level(filename)
 	local new_level = level_io.load(filename)
-	if not new_level.grid then
+	if not new_level then
 		file_browser:chdir(old_dir)
 		return false
 	end
@@ -138,7 +140,7 @@ local menu = {
 		end,
 		["Delete level"] = function()
 			local file = level_io.load(file_browser:get_active())
-			if file.grid then
+			if file and file.grid then
 				os.remove(file_browser:get_active())
 				file_browser:update_contents()
 				generate_list()
@@ -570,7 +572,7 @@ function love.load()
 		if level_io:create_level("level1.txt") then
 			set_level("level1.txt")
 		end
-	elseif not level_io.load("level1.txt").grid then
+	elseif not level_io.load("level1.txt") then
 		level_io:create_level("level1.txt")
 		set_level("level1.txt")
 	else

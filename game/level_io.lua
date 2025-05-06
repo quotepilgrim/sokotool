@@ -10,7 +10,7 @@ function t.load(filename)
 	local file = io.open(filename, "r")
 
 	if not file then
-		return level
+		return
 	end
 
 	local function strip(str)
