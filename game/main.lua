@@ -128,7 +128,7 @@ local menu = {
 			game.set_state("main")
 		end,
 		["Save level"] = function()
-			level.playerstart = {player.x, player.y}
+			level.playerstart = { player.x, player.y }
 			level_io.save(level, level_file)
 			history:clear()
 			game.set_state("editor")
@@ -564,6 +564,13 @@ end
 ----------
 
 function love.load()
+	while #arg > 0 do
+		local v = table.remove(arg, 1)
+		if v == "--dir" then
+			level_dir = root .. "/" .. table.remove(arg, 1)
+			print(level_dir)
+		end
+	end
 	font = love.graphics.newFont(16)
 	love.graphics.setFont(font)
 	if not file_browser:chdir(level_dir) then
@@ -572,12 +579,14 @@ function love.load()
 		if level_io:create_level("level1.txt") then
 			set_level("level1.txt")
 		end
-	elseif not level_io.load("level1.txt") then
-		level_io:create_level("level1.txt")
-		set_level("level1.txt")
 	else
 		generate_list()
-		set_level(list.levels[1])
+		if not list.levels[1] then
+			level_io:create_level("level1.txt")
+			set_level("level1.txt")
+		else
+			set_level(list.levels[1])
+		end
 	end
 	tile_image = love.graphics.newImage("tiles.png")
 	player.sprites = {
