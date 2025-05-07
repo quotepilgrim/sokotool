@@ -10,13 +10,18 @@ function table.dump(t, indent)
 	if not indent then
 		indent = 0
 	end
-	for k, v in pairs(t) do
+	local keys = {}
+	for k,_ in pairs(t) do
+		table.insert(keys, k)
+	end
+	table.sort(keys)
+	for _, k in pairs(keys) do
 		local formatting = string.rep("  ", indent) .. k .. ": "
-		if type(v) == "table" then
+		if type(t[k]) == "table" then
 			print(formatting)
-			table.dump(v, indent + 1)
+			table.dump(t[k], indent + 1)
 		else
-			print(formatting .. tostring(v))
+			print(formatting .. tostring(t[k]))
 		end
 	end
 end
