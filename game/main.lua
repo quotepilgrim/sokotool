@@ -257,15 +257,16 @@ local function draw_level()
 	end
 end
 
-function game.main.update(dt)
+function game.main.update()
 	if events:read("end_level") then
+		player.frozen = true
 		fade:start("out", 2, function()
-			fade:start("in", 2)
+			fade:start("in", 2, function()
+				player.frozen = false
+			end)
 			local id = list.ids[level_file] % #list.levels + 1
 			set_level(list.levels[id])
-			player.frozen = false
 		end)
-		player.frozen = true
 	end
 end
 
@@ -623,8 +624,6 @@ end
 function love.keypressed(key)
 	if game[state].keypressed and game[state].keypressed(key) then
 		return true
-	end
-	if key == "o" then
 	end
 	if key == "escape" then
 		if file_browser.enabled then

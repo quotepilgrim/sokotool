@@ -4,7 +4,7 @@ local msg = require("message")
 
 function t.load(filename)
 	local level = {}
-	local section
+	local section, new_section, flat
 	local separator = "|"
 	local split_pattern = "([^" .. separator .. "]+)"
 	local file = io.open(filename, "r")
@@ -22,12 +22,14 @@ function t.load(filename)
 		if key and value == "" then
 			section = key
 			level[section] = {}
-			return
+			new_section = true
+			flat = false
+			return true
 		elseif key then
 			section = nil
 			if not value:find(separator) then
 				level[key] = tonumber(value) or strip(value)
-				return
+				return true
 			end
 			level[key] = {}
 			for item in value:gmatch(split_pattern) do
@@ -35,9 +37,21 @@ function t.load(filename)
 			end
 		end
 		if section then
-			if not line:find(separator) then
+			if new_section then
+				if not line:find(separator) then
+					flat = true
+				end
+				new_section = false
+			end
+			if flat then
+				if line:find(separator) then
+					return false
+				end
 				table.insert(level[section], tonumber(line) or line)
-				return
+				return true
+			end
+			if not line:find(separator) then
+				return false
 			end
 			local row = {}
 			for item in line:gmatch(split_pattern) do
@@ -45,12 +59,15 @@ function t.load(filename)
 			end
 			table.insert(level[section], row)
 		end
+		return true
 	end
 
 	for line in file:lines() do
 		line = strip(line)
 		if line ~= "" then
-			process_line(line)
+			if not process_line(line) then
+				return
+			end
 		end
 	end
 	file:close()
@@ -73,7 +90,9 @@ function t.save(level, filename)
 		elseif type(level[k]) == "table" then
 			file:write(k .. ":\n")
 			for _, item in ipairs(level[k]) do
-				if type(item) == "table" then
+				if #item == 1 and type(item) == "table" then
+					file:write(item[1] .. "|\n")
+				elseif type(item) == "table" then
 					file:write(table.concat(item, "|") .. "\n")
 				else
 					file:write(item .. "\n")
