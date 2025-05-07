@@ -6,6 +6,7 @@ local history = require("history")
 local input_path = require("input_path")
 local level_io = require("level_io")
 local msg = require("message")
+local fade = require("fade")
 local root = love.filesystem.getSourceBaseDirectory()
 local level_dir = root .. "/levels"
 local old_dir = level_dir
@@ -258,16 +259,13 @@ end
 
 function game.main.update(dt)
 	if events:read("end_level") then
-		timer = 0.2
+		fade:start("out", 2, function()
+			fade:start("in", 2)
+			local id = list.ids[level_file] % #list.levels + 1
+			set_level(list.levels[id])
+			player.frozen = false
+		end)
 		player.frozen = true
-	end
-	if timer > 0 then
-		timer = timer - dt
-	elseif timer < 0 then
-		timer = 0
-		player.frozen = false
-		local id = list.ids[level_file] % #list.levels + 1
-		set_level(list.levels[id])
 	end
 end
 
@@ -611,17 +609,21 @@ end
 
 function love.update(dt)
 	game[state].update(dt)
+	fade:update(dt)
 	msg:update(dt)
 end
 
 function love.draw()
 	game[state].draw()
+	fade:draw()
 	msg:draw()
 end
 
 function love.keypressed(key)
 	if game[state].keypressed and game[state].keypressed(key) then
 		return true
+	end
+	if key == "o" then
 	end
 	if key == "escape" then
 		if file_browser.enabled then
