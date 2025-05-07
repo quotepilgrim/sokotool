@@ -571,6 +571,7 @@ function love.load()
 	end
 	font = love.graphics.newFont(16)
 	love.graphics.setFont(font)
+	input_path:load()
 	if not file_browser:chdir(level_dir) then
 		file_browser:mkdir(level_dir)
 		file_browser:chdir(level_dir)
@@ -639,12 +640,14 @@ function love.keypressed(key)
 		end
 		local id = list.ids[level_file] % #list.levels + 1
 		set_level(list.levels[id])
+		msg:show(level_dir:match(".*/(.*)") .. "/" .. level_file)
 	elseif key == "pageup" then
 		if not list.ids[level_file] then
 			return
 		end
 		local id = (list.ids[level_file] - 2) % #list.levels + 1
 		set_level(list.levels[id])
+		msg:show(level_dir:match(".*/(.*)") .. "/" .. level_file)
 	elseif key == "b" then
 		menu.actions["Browse levels"]()
 	elseif key == "f1" then

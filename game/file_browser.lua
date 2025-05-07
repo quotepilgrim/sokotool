@@ -123,7 +123,7 @@ function t:rmdir(dir)
 	end
 	for _, i in ipairs(self.contents) do
 		local file = level_io.load(i)
-		if file.grid or file.levels then
+		if file and (file.grid or file.levels) then
 			os.remove(i)
 		end
 	end
