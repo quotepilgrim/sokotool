@@ -1,15 +1,15 @@
 local t = {}
 
 t.opacity = 0
+t.inc = 0
 
-t.inc = {
+t.modes = {
 	["in"] = -1,
 	["out"] = 1,
 }
-local inc = 0
 
 function t:start(mode, speed, func)
-	inc = (self.inc[mode] and self.inc[mode] * speed) or 1
+	self.inc = (self.modes[mode] and self.modes[mode] * speed) or 1
 	if mode == "in" then
 		self.opacity = 1
 	else
@@ -21,14 +21,14 @@ function t:start(mode, speed, func)
 end
 
 function t:complete()
-	self.inc = 0
+	self.modes = 0
 end
 
 function t:update(dt)
 	if self.done then
 		return
 	end
-	self.opacity = self.opacity + dt * inc
+	self.opacity = self.opacity + dt * t.inc
 	if self.mode == "in" and self.opacity < 0 then
 		self.opacity = 0
 		self.done = true

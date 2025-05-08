@@ -1,7 +1,7 @@
 local t = {}
 t.queue = {}
 
-local function copy_grid(grid, pos)
+local function copy_grid(grid, px, py)
 	local new_grid = {}
 	for i, row in ipairs(grid) do
 		new_grid[i] = {}
@@ -9,13 +9,13 @@ local function copy_grid(grid, pos)
 			table.insert(new_grid[i], col)
 		end
 	end
-	new_grid.playerx = pos.x
-	new_grid.playery = pos.y
+	new_grid.playerx = px
+	new_grid.playery = py
 	return new_grid
 end
 
-function t:push(grid, pos)
-	return table.insert(self.queue, copy_grid(grid, pos))
+function t:push(grid, px, py)
+	return table.insert(self.queue, copy_grid(grid, px, py))
 end
 
 function t:pop()

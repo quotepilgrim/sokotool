@@ -13,7 +13,6 @@ local old_dir = level_dir
 local state = "main"
 local prev_state = state
 local tile_size = 32
-local timer = 0
 
 local ghost = {}
 local player = {}
@@ -69,6 +68,11 @@ local function generate_list()
 	list.ids = index_table(list.levels)
 end
 
+local function place_player()
+	player.x = level.playerstart[1]
+	player.y = level.playerstart[2]
+end
+
 local function set_level(filename)
 	local new_level = level_io.load(filename)
 	if not new_level then
@@ -77,10 +81,10 @@ local function set_level(filename)
 	end
 	level = new_level
 	level_file = filename
-	player.x = level.playerstart[1]
-	player.y = level.playerstart[2]
+	place_player()
 	history:clear()
 	old_dir = file_browser:current()
+	msg:show(level.name)
 	return true
 end
 
@@ -91,55 +95,55 @@ local menu = {
 	state = "main",
 	options = {
 		main = {
-			"Return",
-			"Edit level",
-			"Quit game",
+			{ "Return",     "close_menu" },
+			{ "Edit level", "edit" },
+			{ "Quit game",  "quit" },
 		},
 		editor = {
-			"Return",
-			"Play level",
-			"Browse levels",
-			"Save level",
-			"New level",
-			"Quit game",
+			{ "Return",        "close_menu" },
+			{ "Play level",    "play" },
+			{ "Browse levels", "browse" },
+			{ "Save level",    "save" },
+			{ "New level",     "add_level" },
+			{ "Quit game",     "quit" },
 		},
 		browser = {
-			"Return",
-			"New level",
-			"Delete level",
-			"New directory",
-			"Delete directory",
-			"Exit browser",
+			{ "Return",           "close_menu" },
+			{ "New level",        "add_level" },
+			{ "Delete level",     "delete_level" },
+			{ "New directory",    "add_dir" },
+			{ "Delete directory", "delete_dir" },
+			{ "Exit browser",     "close_browser" },
 		},
 	},
 	actions = {
-		["Return"] = function()
+		close_menu = function()
 			game.set_state(prev_state)
 		end,
-		["Edit level"] = function()
+		edit = function()
 			game.set_state("editor")
 		end,
-		["Browse levels"] = function()
+		browse = function()
 			file_browser.enabled = true
 			file_browser.active = 1
 			selector.enabled = false
 			game.set_state("editor")
 		end,
-		["Play level"] = function()
+		play = function()
 			game.set_state("main")
 		end,
-		["Save level"] = function()
+		save = function()
 			level.playerstart = { player.x, player.y }
 			level_io.save(level, level_file)
 			history:clear()
 			game.set_state("editor")
 		end,
-		["New level"] = function()
+		add_level = function()
 			input_path.text = ""
 			input_path.mode = "file"
 			game.set_state("input")
 		end,
-		["Delete level"] = function()
+		delete_level = function()
 			local file = level_io.load(file_browser:get_active())
 			if file and file.grid then
 				os.remove(file_browser:get_active())
@@ -150,21 +154,21 @@ local menu = {
 			end
 			msg:show("can't delete file that is not a level.", "error")
 		end,
-		["New directory"] = function()
+		add_dir = function()
 			input_path.text = ""
 			input_path.mode = "directory"
 			game.set_state("input")
 		end,
-		["Delete directory"] = function()
+		delete_dir = function()
 			local path = file_browser:get_active()
 			file_browser:rmdir(path)
 			game.set_state(prev_state)
 		end,
-		["Exit browser"] = function()
+		close_browser = function()
 			file_browser.enabled = false
 			game.set_state(prev_state)
 		end,
-		["Quit game"] = function()
+		quit = function()
 			love.event.quit()
 		end,
 	},
@@ -208,10 +212,10 @@ local function move_box(x, y, dir)
 	end
 	target = level.grid[ny][nx]
 	if target == 1 then
-		history:push(level.grid, player:get_pos())
+		history:push(level.grid, player.x, player.y)
 		level.grid[ny][nx] = 3
 	elseif target == 5 then
-		history:push(level.grid, player:get_pos())
+		history:push(level.grid, player.x, player.y)
 		level.grid[ny][nx] = 4
 	else
 		return false
@@ -236,10 +240,6 @@ function player:move(dir)
 		self.x, self.y = nx, ny
 		check_goals()
 	end
-end
-
-function player:get_pos()
-	return { x = self.x, y = self.y }
 end
 
 function player:draw()
@@ -294,19 +294,17 @@ function game.main.keypressed(key)
 			player.x = grid.playerx
 			player.y = grid.playery
 		else
-			player.x = level.playerstart[1]
-			player.y = level.playerstart[2]
+			place_player()
 		end
 	elseif key == "r" or key == "home" then
 		local grid = history:get(1)
 		if grid then
 			level.grid = grid
-			player.x = level.playerstart[1]
-			player.y = level.playerstart[2]
+			place_player()
 			history:clear()
 		end
 	elseif key == "tab" then
-		history:push(level.grid, player:get_pos())
+		history:push(level.grid, player.x, player.y)
 		game.set_state("editor")
 	end
 end
@@ -472,7 +470,7 @@ function game.editor.keypressed(key)
 		selector.enabled = false
 		game.set_state("main")
 	elseif key == "s" and love.keyboard.isDown("lctrl", "rctrl") then
-		menu.actions["Save level"]()
+		menu.actions.save()
 		msg:show("Level saved.")
 	else
 		return false
@@ -492,10 +490,10 @@ function game.menu.draw()
 		if i == menu.active then
 			love.graphics.rectangle("fill", 0, y, 640, 16)
 			love.graphics.setColor(0, 0, 0, 1)
-			love.graphics.print(opt, menu.x, y)
+			love.graphics.print(opt[1], menu.x, y)
 			love.graphics.setColor(1, 1, 1, 1)
 		else
-			love.graphics.print(opt, menu.x, y)
+			love.graphics.print(opt[1], menu.x, y)
 		end
 		y = y + menu.inc
 	end
@@ -515,7 +513,7 @@ function game.menu.keypressed(key)
 	elseif key == "s" or key == "down" then
 		menu.active = menu.active % #menu.options[menu.state] + 1
 	elseif key == "return" then
-		local action = menu.options[menu.state][menu.active]
+		local action = menu.options[menu.state][menu.active][2]
 		menu.actions[action]()
 	else
 		return false
@@ -648,7 +646,7 @@ function love.keypressed(key)
 		set_level(list.levels[id])
 		msg:show(level_dir:match(".*/(.*)") .. "/" .. level_file)
 	elseif key == "b" then
-		menu.actions["Browse levels"]()
+		menu.actions.browse()
 	elseif key == "f1" then
 		table.dump(level)
 	else
