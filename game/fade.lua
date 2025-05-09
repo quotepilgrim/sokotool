@@ -8,16 +8,16 @@ t.modes = {
 	["out"] = 1,
 }
 
-function t:start(mode, speed, func)
-	self.inc = (self.modes[mode] and self.modes[mode] * speed) or 1
+function t:start(mode, speed, callback)
+	self.inc = (self.modes[mode] and self.modes[mode] * speed) or speed
 	if mode == "in" then
 		self.opacity = 1
 	else
 		self.opacity = 0
 	end
 	self.mode = mode
-	self.callback = func
-    self.done = false
+	self.callback = callback
+	self.done = false
 end
 
 function t:complete()
@@ -36,9 +36,9 @@ function t:update(dt)
 		self.opacity = 1
 		self.done = true
 	end
-    if self.done and self.callback then
-        self.callback()
-    end
+	if self.done and self.callback then
+		self.callback()
+	end
 end
 
 function t:draw()
@@ -49,4 +49,5 @@ function t:draw()
 	love.graphics.rectangle("fill", 0, 0, 640, 640)
 	love.graphics.setColor(1, 1, 1, 1)
 end
+
 return t

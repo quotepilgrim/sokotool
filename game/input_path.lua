@@ -13,7 +13,7 @@ t.text = ""
 t.mode = "file"
 t.draw_cursor = false
 
-function t:load()
+function t.load()
 	font = love.graphics.getFont()
 end
 

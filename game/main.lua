@@ -1,5 +1,5 @@
 require("table_func")
-local tile_image, level, list, bx, by, font, level_file
+local tile_image, level, list, bx, by, font, level_file, blank
 local events = require("events")
 local file_browser = require("file_browser")
 local history = require("history")
@@ -84,7 +84,7 @@ local function set_level(filename)
 	place_player()
 	history:clear()
 	old_dir = file_browser:current()
-	msg:show(level.name)
+	msg:show(level.name, "title")
 	return true
 end
 
@@ -325,11 +325,9 @@ function selector:draw()
 			if quad then
 				love.graphics.draw(tile_image, quad, x, y)
 			elseif tile == 0 then
-				love.graphics.setColor(0, 0, 0, 1)
-				love.graphics.rectangle("fill", x, y, tile_size, tile_size)
-				love.graphics.setColor(1, 1, 1, 1)
+				love.graphics.draw(blank, x, y)
 			elseif tile == -1 then
-				love.graphics.draw(player.sprites[state], x, y)
+				love.graphics.draw(player.sprite, x, y)
 			end
 		end
 	end
@@ -341,8 +339,7 @@ function ghost:draw()
 	end
 	love.graphics.setColor(1, 1, 1, 0.6)
 	if selector.pick == 0 then
-		love.graphics.setColor(0, 0, 0, 0.6)
-		love.graphics.rectangle("fill", self.x, self.y, tile_size, tile_size)
+		love.graphics.draw(blank, self.x, self.y)
 	elseif selector.pick == -1 then
 		love.graphics.draw(player.sprites[state], self.x, self.y)
 	else
@@ -571,6 +568,7 @@ function love.load()
 	font = love.graphics.newFont(16)
 	love.graphics.setFont(font)
 	input_path:load()
+	msg.load()
 	if not file_browser:chdir(level_dir) then
 		file_browser:mkdir(level_dir)
 		file_browser:chdir(level_dir)
@@ -591,6 +589,7 @@ function love.load()
 		main = love.graphics.newImage("player.png"),
 		editor = love.graphics.newImage("playerstart.png"),
 	}
+	blank = love.graphics.newImage("blank.png")
 	player.sprite = player.sprites.main
 	menu.inc = 2 + font:getHeight()
 	local width = tile_image:getWidth()
