@@ -14,10 +14,10 @@ function t:move(dir)
     end
     local x, y = self.x, self.y
     local nx, ny = x + game.dirs[dir][1], y + game.dirs[dir][2]
-    if not self.level.grid[ny] then
+    if not self.level.data.grid[ny] then
         return
     end
-    local tile = self.level.grid[ny][nx]
+    local tile = self.level.data.grid[ny][nx]
     if self.level.is_ground(tile) then
         self.x, self.y = nx, ny
     elseif self.level:move_box(nx, ny, dir) then

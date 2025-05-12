@@ -45,8 +45,8 @@ function level.generate_list()
 end
 
 local function place_player()
-	player.x = level.playerstart[1]
-	player.y = level.playerstart[2]
+	player.x = level.data.playerstart[1]
+	player.y = level.data.playerstart[2]
 end
 
 local function set_level(filename)
@@ -55,14 +55,12 @@ local function set_level(filename)
 		file_browser:chdir(old_dir)
 		return false
 	end
-	for k, v in pairs(new_level) do
-		level[k] = v
-	end
+	level.data = new_level
 	game.levelfile = filename
 	place_player()
 	history:clear()
 	old_dir = file_browser:current()
-	msg:show(level.name, "title")
+	msg:show(level.data.name, "title")
 	return true
 end
 
@@ -101,7 +99,7 @@ function game.states.main.keypressed(key)
 	elseif key == "z" or key == "backspace" then
 		local grid = history:pop()
 		if grid then
-			level.grid = grid
+			level.data.grid = grid
 			player.x = grid.playerx
 			player.y = grid.playery
 		else
@@ -110,12 +108,12 @@ function game.states.main.keypressed(key)
 	elseif key == "r" or key == "home" then
 		local grid = history:get(1)
 		if grid then
-			level.grid = grid
+			level.data.grid = grid
 			place_player()
 			history:clear()
 		end
 	elseif key == "tab" then
-		history:push(level.grid, player.x, player.y)
+		history:push(level.data.grid, player.x, player.y)
 		game:set_state("editor")
 	end
 end
@@ -167,37 +165,37 @@ end
 
 local function shift_grid(key)
 	if key == "up" or key == "w" then
-		local first_row = level.grid[1]
-		for row = 1, #level.grid - 1 do
-			level.grid[row] = level.grid[row + 1]
+		local first_row = level.data.grid[1]
+		for row = 1, #level.data.grid - 1 do
+			level.data.grid[row] = level.data.grid[row + 1]
 		end
-		level.grid[#level.grid] = first_row
-		player.y = (player.y - 2) % #level.grid + 1
+		level.data.grid[#level.data.grid] = first_row
+		player.y = (player.y - 2) % #level.data.grid + 1
 	elseif key == "down" or key == "s" then
-		local last_row = level.grid[#level.grid]
-		for row = #level.grid, 2, -1 do
-			level.grid[row] = level.grid[row - 1]
+		local last_row = level.data.grid[#level.data.grid]
+		for row = #level.data.grid, 2, -1 do
+			level.data.grid[row] = level.data.grid[row - 1]
 		end
-		level.grid[1] = last_row
-		player.y = player.y % #level.grid + 1
+		level.data.grid[1] = last_row
+		player.y = player.y % #level.data.grid + 1
 	elseif key == "left" or key == "a" then
-		for _, row in ipairs(level.grid) do
+		for _, row in ipairs(level.data.grid) do
 			local first_col = row[1]
 			for col = 1, #row - 1 do
 				row[col] = row[col + 1]
 			end
 			row[#row] = first_col
 		end
-		player.x = (player.x - 2) % #level.grid + 1
+		player.x = (player.x - 2) % #level.data.grid + 1
 	elseif key == "right" or key == "d" then
-		for _, row in ipairs(level.grid) do
+		for _, row in ipairs(level.data.grid) do
 			local last_col = row[#row]
 			for col = #row, 2, -1 do
 				row[col] = row[col - 1]
 			end
 			row[1] = last_col
 		end
-		player.x = player.x % #level.grid + 1
+		player.x = player.x % #level.data.grid + 1
 	end
 end
 
@@ -227,11 +225,11 @@ function game.states.editor.update()
 		selector.pick = selector.tiles[by] and selector.tiles[by][bx]
 	elseif love.mouse.isDown(1) and not selector.enabled then
 		bx, by = 1 + math.floor(love.mouse.getX() / level.tilesize), 1 + math.floor(love.mouse.getY() / level.tilesize)
-		if selector.pick and level.grid[by] and level.grid[by][bx] then
+		if selector.pick and level.data.grid[by] and level.data.grid[by][bx] then
 			if selector.pick == -1 then
 				player.x, player.y = bx, by
 			else
-				level.grid[by][bx] = selector.pick
+				level.data.grid[by][bx] = selector.pick
 			end
 		end
 	elseif love.mouse.isDown(2) and not mouse_state[2] then
@@ -242,8 +240,8 @@ function game.states.editor.update()
 		selector.y = math.max(0, math.min(love.mouse.getY() - level.tilesize / 2, 640 - level.tilesize * #selector.tiles))
 	elseif love.mouse.isDown(3) and not mouse_state[3] then
 		bx, by = 1 + math.floor(love.mouse.getX() / level.tilesize), 1 + math.floor(love.mouse.getY() / level.tilesize)
-		if level.grid[by] and level.grid[by][bx] then
-			selector.pick = level.grid[by][bx]
+		if level.data.grid[by] and level.data.grid[by][bx] then
+			selector.pick = level.data.grid[by][bx]
 		end
 		mouse_state[3] = true
 	elseif not love.mouse.isDown(1) and mouse_state[1] then

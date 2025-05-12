@@ -5,6 +5,7 @@ local events = require("events")
 
 t.tilesize = 32
 t.tiles = {}
+t.data = {}
 t.tileimage = love.graphics.newImage("tiles.png")
 
 function t:load()
@@ -31,7 +32,7 @@ function t.is_box(tile)
 end
 
 function t:check_goals()
-    for _, row in ipairs(self.grid) do
+    for _, row in ipairs(self.data.grid) do
         for _, tile in ipairs(row) do
             if tile == 3 or tile == 5 then
                 return
@@ -42,7 +43,7 @@ function t:check_goals()
 end
 
 function t:draw()
-    for j, row in ipairs(self.grid) do
+    for j, row in ipairs(self.data.grid) do
         for i, tile in ipairs(row) do
             local quad = self.tiles[tile]
             if quad then
@@ -53,9 +54,9 @@ function t:draw()
 end
 
 function t:move_box(x, y, dir)
-    local box = self.grid[y][x]
+    local box = self.data.grid[y][x]
     local nx, ny = x + game.dirs[dir][1], y + game.dirs[dir][2]
-    if not self.grid[ny] then
+    if not self.data.grid[ny] then
         return false
     end
     if not self.is_box(box) then
@@ -67,17 +68,17 @@ function t:move_box(x, y, dir)
     else
         ground = 5
     end
-    target = self.grid[ny][nx]
+    target = self.data.grid[ny][nx]
     if target == 1 then
-        history:push(self.grid, self.player.x, self.player.y)
-        self.grid[ny][nx] = 3
+        history:push(self.data.grid, self.player.x, self.player.y)
+        self.data.grid[ny][nx] = 3
     elseif target == 5 then
-        history:push(self.grid, self.player.x, self.player.y)
-        self.grid[ny][nx] = 4
+        history:push(self.data.grid, self.player.x, self.player.y)
+        self.data.grid[ny][nx] = 4
     else
         return false
     end
-    self.grid[y][x] = ground
+    self.data.grid[y][x] = ground
     return true
 end
 
