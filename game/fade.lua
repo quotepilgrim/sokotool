@@ -20,19 +20,15 @@ function t:start(mode, speed, callback)
 	self.done = false
 end
 
-function t:complete()
-	self.modes = 0
-end
-
 function t:update(dt)
 	if self.done then
 		return
 	end
 	self.opacity = self.opacity + dt * t.inc
-	if self.mode == "in" and self.opacity < 0 then
+	if self.opacity < 0 and self.mode == "in" then
 		self.opacity = 0
 		self.done = true
-	elseif self.mode == "out" and self.opacity > 1 then
+	elseif self.opacity > 1 and self.mode == "out" then
 		self.opacity = 1
 		self.done = true
 	end
