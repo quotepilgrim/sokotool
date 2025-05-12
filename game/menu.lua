@@ -11,6 +11,8 @@ t.x = 240
 t.y = 100
 t.active = 1
 t.state = "main"
+t.inc = 2 + love.graphics.getFont():getHeight()
+
 t.options = {
     main = {
         { "Return",     "close_menu" },
