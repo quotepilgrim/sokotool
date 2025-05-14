@@ -500,5 +500,7 @@ function love.mousemoved(x, y)
 end
 
 function love.wheelmoved(x, y)
-	return file_browser:wheelmoved(x, y)
+	if file_browser.enabled then
+		return file_browser:wheelmoved(x, y)
+	end
 end
