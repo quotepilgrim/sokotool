@@ -16,7 +16,6 @@ local level_dir = root .. "/levels"
 local old_dir = level_dir
 
 local ghost = {}
-local mouse_state = { [1] = false, [2] = false, [3] = false }
 
 local selector = {
 	x = 0,
@@ -51,7 +50,7 @@ end
 
 local function set_level(filename)
 	local new_level = level_io.load(filename)
-	if not new_level then
+	if not new_level or not new_level.grid then
 		file_browser:chdir(old_dir)
 		return false
 	end
@@ -205,7 +204,6 @@ function game.states.editor.update()
 	end
 	ghost:update()
 	if events:read("level_select") then
-		local old_dir = level_dir
 		local old_file = game.levelfile
 		level_dir = file_browser:current()
 		game.levelfile = file_browser.contents[file_browser.active]
@@ -216,14 +214,7 @@ function game.states.editor.update()
 			level.generate_list()
 		end
 	end
-	if love.mouse.isDown(1) and not mouse_state[1] and selector.enabled then
-		mouse_state[1] = true
-		selector.hidden = true
-		bx, by =
-			1 + math.floor((love.mouse.getX() - selector.x) / level.tilesize),
-			1 + math.floor((love.mouse.getY() - selector.y) / level.tilesize)
-		selector.pick = selector.tiles[by] and selector.tiles[by][bx]
-	elseif love.mouse.isDown(1) and not selector.enabled then
+	if selector.placing then
 		bx, by = 1 + math.floor(love.mouse.getX() / level.tilesize), 1 + math.floor(love.mouse.getY() / level.tilesize)
 		if selector.pick and level.data.grid[by] and level.data.grid[by][bx] then
 			if selector.pick == -1 then
@@ -232,26 +223,6 @@ function game.states.editor.update()
 				level.data.grid[by][bx] = selector.pick
 			end
 		end
-	elseif love.mouse.isDown(2) and not mouse_state[2] then
-		mouse_state[2] = true
-		selector.enabled = not selector.enabled
-		selector.x = math.max(0,
-			math.min(love.mouse.getX() - level.tilesize / 2, 640 - level.tilesize * #selector.tiles[1]))
-		selector.y = math.max(0, math.min(love.mouse.getY() - level.tilesize / 2, 640 - level.tilesize * #selector.tiles))
-	elseif love.mouse.isDown(3) and not mouse_state[3] then
-		bx, by = 1 + math.floor(love.mouse.getX() / level.tilesize), 1 + math.floor(love.mouse.getY() / level.tilesize)
-		if level.data.grid[by] and level.data.grid[by][bx] then
-			selector.pick = level.data.grid[by][bx]
-		end
-		mouse_state[3] = true
-	elseif not love.mouse.isDown(1) and mouse_state[1] then
-		selector.enabled = false
-		selector.hidden = false
-		mouse_state[1] = false
-	elseif not love.mouse.isDown(2) and mouse_state[2] then
-		mouse_state[2] = false
-	elseif not love.mouse.isDown(3) and mouse_state[3] then
-		mouse_state[3] = false
 	end
 end
 
@@ -286,6 +257,40 @@ function game.states.editor.keypressed(key)
 	return true
 end
 
+function game.states.editor.mousepressed(x, y, button)
+	if button == 1 and selector.enabled then
+		selector.hidden = true
+		bx, by =
+			1 + math.floor((x - selector.x) / level.tilesize),
+			1 + math.floor((y - selector.y) / level.tilesize)
+		selector.pick = selector.tiles[by] and selector.tiles[by][bx]
+	elseif button == 1 and file_browser.enabled then
+		file_browser:mousepressed(x, y, button)
+	elseif button == 1 then
+		selector.placing = true
+	elseif button == 2 and file_browser.enabled then
+		menu.state = "browser"
+		game:set_state("menu")
+	elseif button == 2 then
+		selector.enabled = not selector.enabled
+		selector.x = math.max(0, math.min(x - level.tilesize / 2, 640 - level.tilesize * #selector.tiles[1]))
+		selector.y = math.max(0, math.min(y - level.tilesize / 2, 640 - level.tilesize * #selector.tiles))
+	elseif button == 3 then
+		bx, by = 1 + math.floor(love.mouse.getX() / level.tilesize), 1 + math.floor(love.mouse.getY() / level.tilesize)
+		if level.data.grid[by] and level.data.grid[by][bx] then
+			selector.pick = level.data.grid[by][bx]
+		end
+	end
+end
+
+function game.states.editor.mousereleased(x, y, button)
+	if button == 1 then
+		selector.enabled = false
+		selector.hidden = false
+		selector.placing = false
+	end
+end
+
 -- MENU
 
 function game.states.menu.draw()
@@ -308,7 +313,9 @@ function game.states.menu.draw()
 end
 
 function game.states.menu.update()
-	--
+	if game.mouseactive then
+		menu.active = math.max(1, math.min(math.ceil((game.mousey - menu.y) / menu.inc), #menu.options[menu.state]))
+	end
 end
 
 function game.states.menu.keypressed(key)
@@ -322,11 +329,24 @@ function game.states.menu.keypressed(key)
 		menu.active = menu.active % #menu.options[menu.state] + 1
 	elseif key == "return" then
 		local action = menu.options[menu.state][menu.active][2]
-		menu.actions[action]()
+		if action then
+			menu.actions[action]()
+		end
 	else
 		return false
 	end
 	return true
+end
+
+function game.states.menu.mousepressed(_, _, button)
+	if button == 1 then
+		if game.mousey < menu.y or game.mousey > menu.y + menu.height[menu.state] then
+			game:set_state(game.prev_state)
+			return
+		end
+		local action = menu.options[menu.state][menu.active][2]
+		menu.actions[action]()
+	end
 end
 
 -- INPUT
@@ -418,6 +438,7 @@ function love.draw()
 end
 
 function love.keypressed(key)
+	game.mouseactive = false
 	if game.states[game.state].keypressed and game.states[game.state].keypressed(key) then
 		return true
 	end
@@ -454,8 +475,30 @@ function love.keypressed(key)
 	return true
 end
 
+function love.mousepressed(x, y, button)
+	if game.states[game.state].mousepressed then
+		return game.states[game.state].mousepressed(x, y, button)
+	end
+end
+
+function love.mousereleased(x, y, button)
+	if game.states[game.state].mousereleased then
+		return game.states[game.state].mousereleased(x, y, button)
+	end
+end
+
 function love.textinput(c)
 	if game.states[game.state].textinput then
 		return game.states[game.state].textinput(c)
 	end
+end
+
+function love.mousemoved(x, y)
+	game.mouseactive = true
+	game.mousex = x
+	game.mousey = y
+end
+
+function love.wheelmoved(x, y)
+	return file_browser:wheelmoved(x, y)
 end

@@ -1,5 +1,8 @@
 local t = {}
 
+t.mousex, t.mousey = 0, 0
+t.mouseactive = false
+
 t.states = {
     main = {},
     editor = {},

@@ -3,6 +3,8 @@ local utf8 = require("utf8")
 local events = require("events")
 local timer = 0
 local titles = { file = "Enter filename:", directory = "Enter directory name:" }
+local valid_str = "abcdefghijklmnopqrstuvwxyz1234567890_-. "
+local valid_chars = {}
 local font
 
 t.x = 100
@@ -11,10 +13,15 @@ t.w = 440
 t.h = 56
 t.text = ""
 t.mode = "file"
-t.draw_cursor = false
+t.draw_cursor = true
 
 function t.load()
 	font = love.graphics.getFont()
+	for i = 1, #valid_str do
+		local char = valid_str:sub(i, i)
+		valid_chars[char] = true
+		valid_chars[char:upper()] = true
+	end
 end
 
 function t:draw()
@@ -38,6 +45,9 @@ function t:update(dt)
 end
 
 function t:textinput(c)
+	if not valid_chars[c] then
+		return
+	end
 	self.text = self.text .. c
 end
 

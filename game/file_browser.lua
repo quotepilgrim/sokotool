@@ -4,12 +4,13 @@ local events = require("events")
 local utf8 = require("utf8")
 local level_io = require("level_io")
 local msg = require("message")
+local game = require("game")
 local root = love.filesystem.getSourceBaseDirectory()
 local inc = 2 + love.graphics.getFont():getHeight()
 local height = 320
 local max_visible = math.floor(height / inc)
 local anchor_line = 10
-local scroll_start, scroll_end
+local scroll_start, scroll_end = 1, max_visible
 local roam_free = false
 
 t.enabled = false
@@ -139,13 +140,21 @@ function t:update()
 	if not self.enabled then
 		return false
 	end
-	scroll_start = math.max(1, self.active - anchor_line)
+
+	if game.mouseactive then
+		self.active = scroll_start +
+			math.max(0, math.min(math.floor((game.mousey - self.y) / inc), scroll_end - scroll_start))
+	else
+		scroll_start = math.max(1, self.active - anchor_line)
+	end
+
 	scroll_end = scroll_start + max_visible
 
 	if scroll_end > #self.contents then
 		scroll_start = math.max(1, #self.contents - max_visible)
 		scroll_end = #self.contents
 	end
+
 	return true
 end
 
@@ -179,12 +188,34 @@ function t:keypressed(key)
 			events:send("level_select")
 			self.enabled = false
 		end
+	elseif key == "pagedown" then
+		self.active = math.min(self.active + max_visible, #self.contents)
+	elseif key == "pageup" then
+		self.active = math.max(self.active - max_visible, 1)
 	elseif key == "b" or key == "tab" or key == "backspace" then
 		self.enabled = false
 	else
 		return false
 	end
 	return true
+end
+
+function t:mousepressed(_, _, button)
+	if button == 1 and game.mousey < (1 + scroll_end - scroll_start) * inc then
+		if not self:chdir(self:get_active()) then
+			events:send("level_select")
+			self.enabled = false
+		end
+	else
+		self.enabled = false
+	end
+end
+
+function t:wheelmoved(_, y)
+	if y < 0 and scroll_end == #self.contents then
+		return
+	end
+	scroll_start = math.max(1, scroll_start - y)
 end
 
 return t

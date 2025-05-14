@@ -12,6 +12,7 @@ t.y = 100
 t.active = 1
 t.state = "main"
 t.inc = 2 + love.graphics.getFont():getHeight()
+t.height = {}
 
 t.options = {
     main = {
@@ -91,5 +92,9 @@ t.actions = {
         love.event.quit()
     end,
 }
+
+for k, v in pairs(t.options) do
+    t.height[k] = #v * t.inc
+end
 
 return t
