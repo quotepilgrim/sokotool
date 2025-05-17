@@ -9,13 +9,13 @@ t.modes = {
 }
 
 function t:start(mode, speed, callback)
-	self.inc = (self.modes[mode] and self.modes[mode] * speed) or speed
+	speed = speed or 1
+	self.inc = (self.modes[mode] and self.modes[mode] * speed) or 1
 	if mode == "in" then
 		self.opacity = 1
 	else
 		self.opacity = 0
 	end
-	self.mode = mode
 	self.callback = callback
 	self.done = false
 end
@@ -24,11 +24,11 @@ function t:update(dt)
 	if self.done then
 		return
 	end
-	self.opacity = self.opacity + dt * t.inc
-	if self.opacity < 0 and self.mode == "in" then
+	self.opacity = self.opacity + dt * self.inc
+	if self.opacity < 0 then
 		self.opacity = 0
 		self.done = true
-	elseif self.opacity > 1 and self.mode == "out" then
+	elseif self.opacity > 1 then
 		self.opacity = 1
 		self.done = true
 	end

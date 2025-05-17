@@ -60,6 +60,7 @@ local function set_level(filename)
 	history:clear()
 	old_dir = file_browser:current()
 	msg:show(level.data.name, "title")
+	player:set_sprite("idle")
 	return true
 end
 
@@ -103,12 +104,14 @@ function game.states.main.keypressed(key)
 			player.y = grid.playery
 		else
 			place_player()
+			player:set_sprite("idle")
 		end
 	elseif key == "r" or key == "home" then
 		local grid = history:get(1)
+		place_player()
+		player:set_sprite("idle")
 		if grid then
 			level.data.grid = grid
-			place_player()
 			history:clear()
 		end
 	elseif key == "tab" then
@@ -135,7 +138,7 @@ function selector:draw()
 			elseif tile == 0 then
 				love.graphics.draw(blank, x, y)
 			elseif tile == -1 then
-				love.graphics.draw(player.sprite, x, y)
+				love.graphics.draw(player.spriteimage, player.sprites[player.sprite], x, y)
 			end
 		end
 	end
@@ -149,7 +152,7 @@ function ghost:draw()
 	if selector.pick == 0 then
 		love.graphics.draw(blank, self.x, self.y)
 	elseif selector.pick == -1 then
-		love.graphics.draw(player.sprites[game.state], self.x, self.y)
+		love.graphics.draw(player.spriteimage, player.sprites[player.sprite], self.x, self.y)
 	else
 		love.graphics.draw(level.tileimage, level.tiles[selector.pick], self.x, self.y)
 	end
@@ -401,6 +404,7 @@ function love.load()
 	input_path:load()
 	level:load()
 	msg.load()
+	player:load()
 	player.level = require("level")
 	level.player = require("player")
 	game.player = require("player")

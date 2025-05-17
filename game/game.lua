@@ -27,7 +27,11 @@ function t:set_state(new_state)
     end
     self.prev_state = self.state
     self.state = new_state
-    self.player.sprite = self.player.sprites[self.state] or self.player.sprite
+    if new_state == "editor" then
+        self.player:set_sprite("edit")
+    else
+        self.player:set_sprite("idle")
+    end
 end
 
 return t
