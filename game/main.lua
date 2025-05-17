@@ -97,6 +97,9 @@ function game.states.main.keypressed(key)
 	elseif key == "right" or key == "d" then
 		player:move("right")
 	elseif key == "z" or key == "backspace" then
+		if player.frozen then
+			return
+		end
 		local grid = history:pop()
 		if grid then
 			level.data.grid = grid
