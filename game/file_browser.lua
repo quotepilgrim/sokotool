@@ -141,8 +141,8 @@ function t:update()
 	end
 
 	if game.mouseactive then
-		self.active = scroll_start +
-			math.max(0, math.min(math.floor((game.mousey - self.y) / inc), scroll_end - scroll_start))
+		self.active = scroll_start
+			+ math.max(0, math.min(math.floor((game.mousey - self.y) / inc), scroll_end - scroll_start))
 	else
 		scroll_start = math.max(1, self.active - anchor_line)
 	end

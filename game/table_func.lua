@@ -11,7 +11,7 @@ function table.dump(t, indent)
 		indent = 0
 	end
 	local keys = {}
-	for k,_ in pairs(t) do
+	for k, _ in pairs(t) do
 		table.insert(keys, k)
 	end
 	table.sort(keys)
