@@ -1,11 +1,10 @@
 local t = {}
 local lfs = require("lfs")
-local events = require("events")
 local utf8 = require("utf8")
 local level_io = require("level_io")
 local msg = require("message")
 local game = require("game")
-local root = love.filesystem.getSourceBaseDirectory()
+local level = require("level")
 local inc = 2 + love.graphics.getFont():getHeight()
 local height = 320
 local max_visible = math.floor(height / inc)
@@ -69,7 +68,7 @@ function t:update_contents()
 
 	table.sort(self.contents, compare)
 
-	if not roam_free and self:current() == root then
+	if not roam_free and self:current() == game.root then
 		return
 	end
 
@@ -178,16 +177,28 @@ function t:draw()
 	end
 end
 
+function t:levelselect()
+	if not self:chdir(self:get_active()) then
+		local old_file = game.levelfile
+		game.leveldir = self:current()
+		game.levelfile = self.contents[self.active]
+		if not game.set_level(game.levelfile) then
+			game.leveldir = game.prevdir
+			game.levelfile = old_file
+		else
+			level.generate_list()
+		end
+		self.enabled = false
+	end
+end
+
 function t:keypressed(key)
 	if key == "s" or key == "down" then
 		self.active = math.min(self.active + 1, #self.contents)
 	elseif key == "w" or key == "up" then
 		self.active = math.max(self.active - 1, 1)
 	elseif key == "return" or key == "space" then
-		if not self:chdir(self:get_active()) then
-			events:send("level_select")
-			self.enabled = false
-		end
+		self:levelselect()
 	elseif key == "pagedown" then
 		self.active = math.min(self.active + max_visible, #self.contents)
 	elseif key == "pageup" then
@@ -202,10 +213,7 @@ end
 
 function t:mousepressed(_, _, button)
 	if button == 1 and game.mousey < (1 + scroll_end - scroll_start) * inc then
-		if not self:chdir(self:get_active()) then
-			events:send("level_select")
-			self.enabled = false
-		end
+		self:levelselect()
 	else
 		self.enabled = false
 	end

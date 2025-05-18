@@ -1,6 +1,9 @@
 local t = {}
 local utf8 = require("utf8")
-local events = require("events")
+local game = require("game")
+local level_io = require("level_io")
+local level = require("level")
+local file_browser = require("file_browser")
 local timer = 0
 local titles = { file = "Enter filename:", directory = "Enter directory name:" }
 local valid_str = "abcdefghijklmnopqrstuvwxyz1234567890_-. "
@@ -59,10 +62,20 @@ function t:keypressed(key)
 		end
 	elseif key == "return" then
 		if self.mode == "file" then
-			events:send("set_filename")
+			if level_io:create_level(self.text) then
+				game.set_level(self.text)
+				file_browser:update_contents()
+				file_browser.enabled = false
+				level.generate_list()
+			end
+			game:set_state("editor")
 		elseif self.mode == "directory" then
-			events:send("set_dirname")
+			file_browser:mkdir(self.text)
+			file_browser:update_contents()
+			game:set_state("editor")
 		end
+	elseif key == "escape" then
+		game:set_state("editor")
 	end
 	return true
 end

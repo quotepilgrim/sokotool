@@ -1,6 +1,5 @@
 require("table_func")
-local list, bx, by, font, blank
-local events = require("events")
+local bx, by, font, blank
 local file_browser = require("file_browser")
 local history = require("history")
 local input_path = require("input_path")
@@ -11,9 +10,9 @@ local game = require("game")
 local level = require("level")
 local player = require("player")
 local menu = require("menu")
-local root = love.filesystem.getSourceBaseDirectory()
-local level_dir = root .. "/levels"
-local old_dir = level_dir
+game.root = love.filesystem.getSourceBaseDirectory()
+game.leveldir = game.root .. "/levels"
+game.prevdir = game.leveldir
 
 local ghost = {}
 
@@ -34,13 +33,13 @@ local function index_table(t)
 end
 
 function level.generate_list()
-	list = level_io.load("list.txt")
-	if not list then
-		list = { levels = table.slice(file_browser.contents, 2) }
-	elseif not list.levels then
+	game.list = level_io.load("list.txt")
+	if not game.list then
+		game.list = { levels = table.slice(file_browser.contents, 2) }
+	elseif not game.list.levels then
 		msg:show("file is not a valid list.", "error")
 	end
-	list.ids = index_table(list.levels)
+	game.list.ids = index_table(game.list.levels)
 end
 
 local function place_player()
@@ -48,17 +47,17 @@ local function place_player()
 	player.y = level.data.playerstart[2]
 end
 
-local function set_level(filename)
+function game.set_level(filename)
 	local new_level = level_io.load(filename)
 	if not new_level or not new_level.grid then
-		file_browser:chdir(old_dir)
+		file_browser:chdir(game.prevdir)
 		return false
 	end
 	level.data = new_level
 	game.levelfile = filename
 	place_player()
 	history:clear()
-	old_dir = file_browser:current()
+	game.prevdir = file_browser:current()
 	msg:show(level.data.name, "title")
 	player:set_sprite("idle")
 	return true
@@ -67,16 +66,6 @@ end
 -- MAIN
 
 function game.states.main.update()
-	if events:read("end_level") then
-		player.frozen = true
-		fade:start("out", 2, function()
-			fade:start("in", 2, function()
-				player.frozen = false
-			end)
-			local id = list.ids[game.levelfile] % #list.levels + 1
-			set_level(list.levels[id])
-		end)
-	end
 end
 
 function game.states.main.draw()
@@ -209,17 +198,6 @@ function game.states.editor.update()
 		return
 	end
 	ghost:update()
-	if events:read("level_select") then
-		local old_file = game.levelfile
-		level_dir = file_browser:current()
-		game.levelfile = file_browser.contents[file_browser.active]
-		if not set_level(game.levelfile) then
-			level_dir = old_dir
-			game.levelfile = old_file
-		else
-			level.generate_list()
-		end
-	end
 	if selector.placing then
 		bx, by = 1 + math.floor(love.mouse.getX() / level.tilesize), 1 + math.floor(love.mouse.getY() / level.tilesize)
 		if selector.pick and level.data.grid[by] and level.data.grid[by][bx] then
@@ -363,19 +341,6 @@ function game.states.input.draw()
 end
 
 function game.states.input.update(dt)
-	if events:read("set_filename") then
-		if level_io:create_level(input_path.text) then
-			set_level(input_path.text)
-			file_browser:update_contents()
-			file_browser.enabled = false
-			level.generate_list()
-		end
-		game:set_state("editor")
-	elseif events:read("set_dirname") then
-		file_browser:mkdir(input_path.text)
-		file_browser:update_contents()
-		game:set_state("editor")
-	end
 	return input_path:update(dt)
 end
 
@@ -384,9 +349,6 @@ function game.states.input.textinput(c)
 end
 
 function game.states.input.keypressed(key)
-	if key == "escape" then
-		game:set_state("main")
-	end
 	return input_path:keypressed(key)
 end
 
@@ -398,8 +360,8 @@ function love.load()
 	while #arg > 0 do
 		local v = table.remove(arg, 1)
 		if v == "--dir" then
-			level_dir = root .. "/" .. table.remove(arg, 1)
-			print(level_dir)
+			game.leveldir = game.root .. "/" .. table.remove(arg, 1)
+			print(game.leveldir)
 		end
 	end
 	font = love.graphics.newFont(16)
@@ -413,19 +375,19 @@ function love.load()
 	game.player = require("player")
 	blank = love.graphics.newImage("blank.png")
 
-	if not file_browser:chdir(level_dir) then
-		file_browser:mkdir(level_dir)
-		file_browser:chdir(level_dir)
+	if not file_browser:chdir(game.leveldir) then
+		file_browser:mkdir(game.leveldir)
+		file_browser:chdir(game.leveldir)
 		if level_io:create_level("level1.txt") then
-			set_level("level1.txt")
+			game.set_level("level1.txt")
 		end
 	else
 		level.generate_list()
-		if not list.levels[1] then
+		if not game.list.levels[1] then
 			level_io:create_level("level1.txt")
-			set_level("level1.txt")
+			game.set_level("level1.txt")
 		else
-			set_level(list.levels[1])
+			game.set_level(game.list.levels[1])
 		end
 	end
 
@@ -458,19 +420,19 @@ function love.keypressed(key)
 		game:set_state("menu")
 		menu.active = 1
 	elseif key == "pagedown" then
-		if not list.ids[game.levelfile] then
+		if not game.list.ids[game.levelfile] then
 			return
 		end
-		local id = list.ids[game.levelfile] % #list.levels + 1
-		set_level(list.levels[id])
-		msg:show(level_dir:match(".*/(.*)") .. "/" .. game.levelfile)
+		local id = game.list.ids[game.levelfile] % #game.list.levels + 1
+		game.set_level(game.list.levels[id])
+		msg:show(game.leveldir:match(".*/(.*)") .. "/" .. game.levelfile)
 	elseif key == "pageup" then
-		if not list.ids[game.levelfile] then
+		if not game.list.ids[game.levelfile] then
 			return
 		end
-		local id = (list.ids[game.levelfile] - 2) % #list.levels + 1
-		set_level(list.levels[id])
-		msg:show(level_dir:match(".*/(.*)") .. "/" .. game.levelfile)
+		local id = (game.list.ids[game.levelfile] - 2) % #game.list.levels + 1
+		game.set_level(game.list.levels[id])
+		msg:show(game.leveldir:match(".*/(.*)") .. "/" .. game.levelfile)
 	elseif key == "b" then
 		menu.actions.browse()
 		selector.enabled = false

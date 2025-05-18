@@ -1,7 +1,7 @@
 local t = {}
 local game = require("game")
 local history = require("history")
-local events = require("events")
+local fade = require("fade")
 
 t.tilesize = 32
 t.tiles = {}
@@ -39,7 +39,14 @@ function t:check_goals()
             end
         end
     end
-    events:send("end_level")
+    self.player.frozen = true
+    fade:start("out", 2, function()
+        fade:start("in", 2, function()
+            self.player.frozen = false
+        end)
+        local id = game.list.ids[game.levelfile] % #game.list.levels + 1
+        game.set_level(game.list.levels[id])
+    end)
 end
 
 function t:draw()

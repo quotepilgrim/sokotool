@@ -4,8 +4,8 @@ local game = require("game")
 t.spriteimage = love.graphics.newImage("player.png")
 t.width, t.height = 32, 32
 t.sprites = {}
-t.sprite_nums = { up = 1, down = 2, left = 3, right = 4, idle = 5, edit = 6 }
-t.sprite = t.sprite_nums["idle"]
+t.sprite_ids = { up = 1, down = 2, left = 3, right = 4, idle = 5, edit = 6 }
+t.sprite = t.sprite_ids["idle"]
 
 function t:load()
     local width = self.spriteimage:getWidth()
@@ -23,7 +23,7 @@ function t:load()
 end
 
 function t:set_sprite(sprite)
-    self.sprite = self.sprite_nums[sprite]
+    self.sprite = self.sprite_ids[sprite]
 end
 
 function t:move(dir)
@@ -32,7 +32,7 @@ function t:move(dir)
     end
     local x, y = self.x, self.y
     local nx, ny = x + game.dirs[dir][1], y + game.dirs[dir][2]
-    self.sprite = self.sprite_nums[dir]
+    self:set_sprite(dir)
     if not self.level.data.grid[ny] then
         return
     end
