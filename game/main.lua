@@ -438,7 +438,7 @@ function love.keypressed(key)
 		game.set_level(game.list.levels[id])
 		msg:show(game.leveldir:match(".*/(.*)") .. "/" .. game.levelfile)
 	elseif key == "f1" then
-		table.dump(game.level)
+		table.dump(level.data)
 	else
 		return false
 	end
