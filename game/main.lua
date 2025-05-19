@@ -59,7 +59,7 @@ function game.set_level(filename)
 	history:clear()
 	game.prevdir = file_browser:current()
 	msg:show(level.data.name, "title")
-	if game.state ~= "editor" then
+	if game.state == "main" then
 		player:set_sprite("idle")
 	end
 	return true
@@ -67,11 +67,18 @@ end
 
 -- MAIN
 
-function game.states.main.update() end
+function game.states.main.update()
+	if file_browser.enabled then
+		return file_browser:update()
+	end
+end
 
 function game.states.main.draw()
 	level:draw()
 	player:draw()
+	if file_browser.enabled then
+		return file_browser:draw()
+	end
 end
 
 function game.states.main.keypressed(key)
@@ -110,6 +117,12 @@ function game.states.main.keypressed(key)
 	elseif key == "tab" then
 		history:push(level.data.grid, player.x, player.y)
 		game:set_state("editor")
+	end
+end
+
+function game.states.main.mousepressed(x, y, button)
+	if button == 1 and file_browser.enabled then
+		return file_browser:mousepressed(x, y, button)
 	end
 end
 
@@ -236,9 +249,6 @@ function game.states.editor.keypressed(key)
 	elseif key == "s" and love.keyboard.isDown("lctrl", "rctrl") then
 		menu.actions.save()
 		msg:show("Level saved.")
-	elseif key == "b" then
-		menu.actions.browse()
-		selector.enabled = false
 	else
 		return false
 	end
@@ -437,6 +447,9 @@ function love.keypressed(key)
 		local id = (game.list.ids[game.levelfile] - 2) % #game.list.levels + 1
 		game.set_level(game.list.levels[id])
 		msg:show(game.leveldir:match(".*/(.*)") .. "/" .. game.levelfile)
+	elseif key == "b" then
+		menu.actions.browse()
+		selector.enabled = false
 	elseif key == "f1" then
 		table.dump(level.data)
 	else

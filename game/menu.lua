@@ -47,7 +47,6 @@ t.actions = {
 	browse = function()
 		file_browser.enabled = true
 		file_browser.active = 1
-		game:set_state("editor")
 	end,
 	play = function()
 		game:set_state("main")
