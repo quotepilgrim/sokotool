@@ -1,10 +1,10 @@
 local t = {}
-local lfs = require("lfs")
-local utf8 = require("utf8")
-local level_io = require("level_io")
-local msg = require("message")
 local game = require("game")
 local level = require("level")
+local level_io = require("level_io")
+local lfs = require("lfs")
+local msg = require("message")
+local utf8 = require("utf8")
 local inc = 2 + love.graphics.getFont():getHeight()
 local height = 320
 local max_visible = math.floor(height / inc)

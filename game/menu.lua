@@ -1,11 +1,11 @@
 local t = {}
-local game = require("game")
-local input_path = require("input_path")
 local file_browser = require("file_browser")
-local level_io = require("level_io")
+local game = require("game")
 local history = require("history")
-local msg = require("message")
+local input_path = require("input_path")
 local level = require("level")
+local level_io = require("level_io")
+local msg = require("message")
 
 t.x = 240
 t.y = 100

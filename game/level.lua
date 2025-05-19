@@ -1,7 +1,7 @@
 local t = {}
+local fade = require("fade")
 local game = require("game")
 local history = require("history")
-local fade = require("fade")
 
 t.tilesize = 32
 t.tiles = {}

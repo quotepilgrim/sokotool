@@ -1,15 +1,15 @@
 require("table_func")
-local bx, by, font, blank
+local fade = require("fade")
 local file_browser = require("file_browser")
+local game = require("game")
 local history = require("history")
 local input_path = require("input_path")
-local level_io = require("level_io")
-local msg = require("message")
-local fade = require("fade")
-local game = require("game")
 local level = require("level")
-local player = require("player")
+local level_io = require("level_io")
 local menu = require("menu")
+local msg = require("message")
+local player = require("player")
+local bx, by, font, blank
 game.root = love.filesystem.getSourceBaseDirectory()
 game.leveldir = game.root .. "/levels"
 game.prevdir = game.leveldir

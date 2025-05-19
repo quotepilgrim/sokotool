@@ -1,9 +1,9 @@
 local t = {}
-local utf8 = require("utf8")
-local game = require("game")
-local level_io = require("level_io")
-local level = require("level")
 local file_browser = require("file_browser")
+local game = require("game")
+local level = require("level")
+local level_io = require("level_io")
+local utf8 = require("utf8")
 local timer = 0
 local titles = { file = "Enter filename:", directory = "Enter directory name:" }
 local valid_str = "abcdefghijklmnopqrstuvwxyz1234567890_-. "
