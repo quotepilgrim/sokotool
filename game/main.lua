@@ -24,6 +24,14 @@ local selector = {
 	hidden = false,
 }
 
+function selector:toggle(x, y)
+	if not self.enabled then
+		selector.x = math.max(0, math.min(x - level.tilesize / 2, 640 - level.tilesize * #selector.tiles[1]))
+		selector.y = math.max(0, math.min(y - level.tilesize / 2, 640 - level.tilesize * #selector.tiles))
+	end
+	self.enabled = not self.enabled
+end
+
 local function index_table(t)
 	local indices = {}
 	for i, v in ipairs(t) do
@@ -114,7 +122,7 @@ function game.states.main.keypressed(key)
 			level.data.grid = grid
 			history:clear()
 		end
-	elseif key == "tab" then
+	elseif key == "e" then
 		history:push(level.data.grid, player.x, player.y)
 		game:set_state("editor")
 	end
@@ -230,11 +238,12 @@ end
 function game.states.editor.draw()
 	level:draw()
 	if selector.enabled then
+		player:draw()
 		selector:draw()
 	else
 		ghost:draw()
+		player:draw()
 	end
-	player:draw()
 	if file_browser.enabled then
 		file_browser:draw()
 	end
@@ -246,9 +255,11 @@ function game.states.editor.keypressed(key)
 	end
 	if love.keyboard.isDown("lshift", "rshift") then
 		shift_grid(key)
-	elseif key == "tab" then
+	elseif key == "e" then
 		selector.enabled = false
 		game:set_state("main")
+	elseif key == "tab" then
+		selector:toggle(game.mousex, game.mousey)
 	elseif key == "s" and love.keyboard.isDown("lctrl", "rctrl") then
 		menu.actions.save()
 		msg:show("Level saved.")
@@ -271,9 +282,7 @@ function game.states.editor.mousepressed(x, y, button)
 		menu.state = "browser"
 		game:set_state("menu")
 	elseif button == 2 then
-		selector.enabled = not selector.enabled
-		selector.x = math.max(0, math.min(x - level.tilesize / 2, 640 - level.tilesize * #selector.tiles[1]))
-		selector.y = math.max(0, math.min(y - level.tilesize / 2, 640 - level.tilesize * #selector.tiles))
+		selector:toggle(x, y)
 	elseif button == 3 then
 		bx, by = 1 + math.floor(love.mouse.getX() / level.tilesize), 1 + math.floor(love.mouse.getY() / level.tilesize)
 		if level.data.grid[by] and level.data.grid[by][bx] then
