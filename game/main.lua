@@ -123,6 +123,9 @@ end
 function game.states.main.mousepressed(x, y, button)
 	if button == 1 and file_browser.enabled then
 		return file_browser:mousepressed(x, y, button)
+	elseif button == 2 and file_browser.enabled then
+		menu.state = "browser"
+		game:set_state("menu")
 	end
 end
 
