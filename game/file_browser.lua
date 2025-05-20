@@ -68,7 +68,7 @@ function t:update_contents()
 
 	table.sort(self.contents, compare)
 
-	if not roam_free and self:current() == game.root:gsub("\\", "/") then
+	if not roam_free and self.current() == game.root:gsub("\\", "/") then
 		return
 	end
 
@@ -84,12 +84,12 @@ function t:get_active()
 	return self.contents[self.active]
 end
 
-function t:current()
+function t.current()
 	return lfs.currentdir():gsub("\\","/")
 end
 
 function t:chdir(dir)
-	local full_path = self:current() .. "/" .. dir:match("([^/]+)")
+	local full_path = self.current() .. "/" .. dir:match("([^/]+)")
 	local attr = lfs.attributes(full_path)
 	if attr and attr.mode ~= "directory" then
 		return false
@@ -180,7 +180,7 @@ end
 function t:levelselect()
 	if not self:chdir(self:get_active()) then
 		local old_file = game.levelfile
-		game.leveldir = self:current()
+		game.leveldir = self.current()
 		game.levelfile = self.contents[self.active]
 		if not game.set_level(game.levelfile) then
 			game.leveldir = game.prevdir

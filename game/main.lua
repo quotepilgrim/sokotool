@@ -65,7 +65,7 @@ function game.set_level(filename)
 	game.levelfile = filename
 	place_player()
 	history:clear()
-	game.prevdir = file_browser:current()
+	game.prevdir = file_browser.current()
 	msg:show(level.data.name, "title")
 	if game.state == "main" then
 		player:set_sprite("idle")

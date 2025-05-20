@@ -54,7 +54,7 @@ t.actions = {
 		game:set_state("main")
 	end,
 	save = function()
-		game.level.playerstart = { game.player.x, game.player.y }
+		level.data.playerstart = { game.player.x, game.player.y }
 		level_io.save(level.data, game.levelfile)
 		history:clear()
 		game:set_state("editor")

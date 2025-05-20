@@ -64,6 +64,7 @@ function t:keypressed(key)
 		if self.mode == "file" then
 			if level_io:create_level(self.text) then
 				game.set_level(self.text)
+				game.leveldir = file_browser.current()
 				file_browser:update_contents()
 				file_browser.enabled = false
 				level.generate_list()
