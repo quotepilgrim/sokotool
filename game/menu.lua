@@ -48,6 +48,7 @@ t.actions = {
 	browse = function()
 		file_browser.enabled = true
 		file_browser.active = 1
+		game:set_state(game.prev_state)
 	end,
 	play = function()
 		game:set_state("main")
