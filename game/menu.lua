@@ -18,6 +18,7 @@ t.options = {
 	main = {
 		{ "Return", "close_menu" },
 		{ "Edit level", "edit" },
+		{ "Browse levels", "browse" },
 		{ "Quit game", "quit" },
 	},
 	editor = {
