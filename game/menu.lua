@@ -57,6 +57,7 @@ t.actions = {
 		level.data.playerstart = { game.player.x, game.player.y }
 		level_io.save(level.data, game.levelfile)
 		history:clear()
+		msg:show("Level saved.")
 		game:set_state("editor")
 	end,
 	add_level = function()

@@ -262,7 +262,6 @@ function game.states.editor.keypressed(key)
 		selector:toggle(game.mousex, game.mousey)
 	elseif key == "s" and love.keyboard.isDown("lctrl", "rctrl") then
 		menu.actions.save()
-		msg:show("Level saved.")
 	else
 		return false
 	end
@@ -460,6 +459,7 @@ function love.keypressed(key)
 		game.set_level(game.list.levels[id])
 		msg:show(game.leveldir:match(".*/(.*)") .. "/" .. game.levelfile)
 	elseif key == "b" then
+		game:set_state("menu")
 		menu.actions.browse()
 		selector.enabled = false
 	elseif key == "f1" then
