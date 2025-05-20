@@ -68,7 +68,7 @@ function t:update_contents()
 
 	table.sort(self.contents, compare)
 
-	if not roam_free and self:current() == game.root then
+	if not roam_free and self:current() == game.root:gsub("\\", "/") then
 		return
 	end
 
@@ -85,11 +85,11 @@ function t:get_active()
 end
 
 function t:current()
-	return lfs.currentdir():gsub("\\", "/")
+	return lfs.currentdir():gsub("\\","/")
 end
 
 function t:chdir(dir)
-	local full_path = lfs.currentdir() .. "/" .. dir:match("([^/]+)")
+	local full_path = self:current() .. "/" .. dir:match("([^/]+)")
 	local attr = lfs.attributes(full_path)
 	if attr and attr.mode ~= "directory" then
 		return false
