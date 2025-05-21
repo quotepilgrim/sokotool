@@ -89,8 +89,8 @@ function t.current()
 end
 
 function t:chdir(dir)
-	local full_path = self.current() .. "/" .. dir:match("([^/]+)")
-	local attr = lfs.attributes(full_path)
+	--local full_path = self.current() .. "/" .. dir:match("([^/]+)")
+	local attr = lfs.attributes(dir)
 	if attr and attr.mode ~= "directory" then
 		return false
 	end
@@ -186,7 +186,7 @@ function t:levelselect()
 			game.leveldir = game.prevdir
 			game.levelfile = old_file
 		else
-			level.generate_list()
+			game.generate_list()
 		end
 		self.enabled = false
 	end

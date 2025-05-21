@@ -366,7 +366,6 @@ function love.load()
 		local v = table.remove(arg, 1)
 		if v == "--dir" then
 			game.leveldir = game.root .. "/" .. table.remove(arg, 1)
-			print(game.leveldir)
 		end
 	end
 	font = love.graphics.newFont(16)

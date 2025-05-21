@@ -70,7 +70,7 @@ t.actions = {
 		if file and file.grid then
 			os.remove(file_browser:get_active())
 			file_browser:update_contents()
-			level.generate_list()
+			game.generate_list()
 			game:set_state(game.prev_state)
 			return
 		end
