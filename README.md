@@ -1,6 +1,7 @@
 # Sokotool
 
-A Sokoban clone with integrated level editor and file browser. The name was chosen hastily and is subject to change.
+A Sokoban clone made with LÖVE, containing an integrated level editor
+and file browser. The name was chosen hastily and is subject to change.
 
 ## Controls
 
