@@ -31,6 +31,13 @@ function t.is_box(tile)
 	return tile == 3 or tile == 4
 end
 
+function t:reset()
+	self.data.grid = history:get(1) or self.data.grid
+	self.player:reset()
+	self.player:set_sprite("idle")
+	history:clear()
+end
+
 function t:check_goals()
 	for _, row in ipairs(self.data.grid) do
 		for _, tile in ipairs(row) do

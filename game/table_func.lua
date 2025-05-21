@@ -25,3 +25,11 @@ function table.dump(t, indent)
 		end
 	end
 end
+
+function table.index(t)
+	local indices = {}
+	for i, v in ipairs(t) do
+		indices[v] = i
+	end
+	return indices
+end

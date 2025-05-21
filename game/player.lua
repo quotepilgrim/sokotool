@@ -26,6 +26,11 @@ function t:set_sprite(sprite)
 	self.sprite = self.sprite_ids[sprite]
 end
 
+function t:reset()
+	self.x = self.level.data.playerstart[1]
+	self.y = self.level.data.playerstart[2]
+end
+
 function t:move(dir)
 	if self.frozen then
 		return

@@ -10,6 +10,7 @@ local menu = require("menu")
 local msg = require("message")
 local player = require("player")
 local bx, by, font, blank
+
 game.root = love.filesystem.getSourceBaseDirectory()
 game.leveldir = game.root .. "/levels"
 game.prevdir = game.leveldir
@@ -32,38 +33,26 @@ function selector:toggle(x, y)
 	self.enabled = not self.enabled
 end
 
-local function index_table(t)
-	local indices = {}
-	for i, v in ipairs(t) do
-		indices[v] = i
-	end
-	return indices
-end
-
-function level.generate_list()
+function game.generate_list()
 	game.list = level_io.load("list.txt")
 	if not game.list then
 		game.list = { levels = table.slice(file_browser.contents, 2) }
 	elseif not game.list.levels then
 		msg:show("file is not a valid list.", "error")
 	end
-	game.list.ids = index_table(game.list.levels)
-end
-
-local function place_player()
-	player.x = level.data.playerstart[1]
-	player.y = level.data.playerstart[2]
+	game.list.ids = table.index(game.list.levels)
 end
 
 function game.set_level(filename)
 	local new_level = level_io.load(filename)
 	if not new_level or not new_level.grid then
 		file_browser:chdir(game.prevdir)
+		level:reset()
 		return false
 	end
 	level.data = new_level
 	game.levelfile = filename
-	place_player()
+	player:reset()
 	history:clear()
 	game.prevdir = file_browser.current()
 	msg:show(level.data.name, "title")
@@ -111,17 +100,10 @@ function game.states.main.keypressed(key)
 			player.x = grid.playerx
 			player.y = grid.playery
 		else
-			place_player()
-			player:set_sprite("idle")
+			level:reset()
 		end
 	elseif key == "r" or key == "home" then
-		local grid = history:get(1)
-		place_player()
-		player:set_sprite("idle")
-		if grid then
-			level.data.grid = grid
-			history:clear()
-		end
+		level:reset()
 	elseif key == "e" then
 		history:push(level.data.grid, player.x, player.y)
 		game:set_state("editor")
@@ -406,7 +388,7 @@ function love.load()
 			game.set_level("level1.txt")
 		end
 	else
-		level.generate_list()
+		game.generate_list()
 		if not game.list.levels[1] then
 			level_io:create_level("level1.txt")
 			file_browser:update_contents()
