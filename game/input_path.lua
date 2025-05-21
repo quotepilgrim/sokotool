@@ -1,7 +1,6 @@
 local t = {}
 local file_browser = require("file_browser")
 local game = require("game")
-local level = require("level")
 local level_io = require("level_io")
 local utf8 = require("utf8")
 local timer = 0
@@ -67,7 +66,7 @@ function t:keypressed(key)
 				game.leveldir = file_browser.current()
 				file_browser:update_contents()
 				file_browser.enabled = false
-				level.generate_list()
+				game.generate_list()
 			end
 			game:set_state("editor")
 		elseif self.mode == "directory" then
