@@ -38,7 +38,7 @@ and file browser. The name was chosen hastily and is subject to change.
 * **Q**: quit game.
 
 ### File Browser
-* **Right mouse button**: open menu.
+* **Escape or right mouse button**: open menu.
 * **Mouse wheel**: scroll list.
 * **PageUp**: previous page.
 * **PageDown**: next page.
