@@ -17,7 +17,7 @@ A Sokoban clone with integrated level editor and file browser. The name was chos
 * **R** or **Home**: reset level.
 * **E**: switch to editor mode.
 
-### Editor mode
+### Edit mode
 
 * **Right mouse button** or **tab**: Open tile selector.
 * **Left mouse button**: Place tile.
