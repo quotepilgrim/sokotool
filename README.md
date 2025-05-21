@@ -16,7 +16,7 @@ and file browser. The name was chosen hastily and is subject to change.
 * **W, A, S, D** or **arrow keys**: move.
 * **Z** or **backspace**: undo last push.
 * **R** or **Home**: reset level.
-* **E**: switch to editor mode.
+* **E**: switch to edit mode.
 
 ### Edit mode
 
