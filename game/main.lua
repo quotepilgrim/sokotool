@@ -365,19 +365,18 @@ function love.load()
 	while #arg > 0 do
 		local v = table.remove(arg, 1)
 		if v == "--dir" then
-			game.leveldir = game.root .. "/" .. table.remove(arg, 1)
+			game.leveldir = table.remove(arg, 1)
 		end
 	end
 	font = love.graphics.newFont(16)
 	love.graphics.setFont(font)
 	input_path:load()
-	level:load()
+	player:load(level)
+	level:load(player)
+	game:load(player)
 	msg.load()
-	player:load()
-	player.level = require("level")
-	level.player = require("player")
-	game.player = require("player")
 	blank = love.graphics.newImage("blank.png")
+	file_browser:chdir(game.root)
 
 	if not file_browser:chdir(game.leveldir) then
 		file_browser:mkdir(game.leveldir)

@@ -85,11 +85,10 @@ function t:get_active()
 end
 
 function t.current()
-	return lfs.currentdir():gsub("\\","/")
+	return lfs.currentdir():gsub("\\", "/")
 end
 
 function t:chdir(dir)
-	--local full_path = self.current() .. "/" .. dir:match("([^/]+)")
 	local attr = lfs.attributes(dir)
 	if attr and attr.mode ~= "directory" then
 		return false

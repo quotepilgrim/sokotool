@@ -7,12 +7,14 @@ t.sprites = {}
 t.sprite_ids = { up = 1, down = 2, left = 3, right = 4, idle = 5, edit = 6 }
 t.sprite = t.sprite_ids["idle"]
 
-function t:load()
+function t:load(level)
 	local width = self.spriteimage:getWidth()
 	local height = self.spriteimage:getHeight()
 	local rows = height / self.height
 	local cols = width / self.width
 	local count = 1
+	self.level = level
+
 	for i = 0, rows - 1 do
 		for j = 0, cols - 1 do
 			self.sprites[count] =

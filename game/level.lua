@@ -8,12 +8,14 @@ t.tiles = {}
 t.data = {}
 t.tileimage = love.graphics.newImage("tiles.png")
 
-function t:load()
+function t:load(player)
 	local width = self.tileimage:getWidth()
 	local height = self.tileimage:getHeight()
 	local rows = height / self.tilesize
 	local cols = width / self.tilesize
 	local count = 1
+	self.player = player
+
 	for i = 0, rows - 1 do
 		for j = 0, cols - 1 do
 			self.tiles[count] =

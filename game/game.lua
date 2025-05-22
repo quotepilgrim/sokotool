@@ -20,6 +20,10 @@ t.dirs = {
 t.state = "main"
 t.prev_state = "main"
 
+function t:load(player)
+	self.player = player
+end
+
 function t:set_state(new_state)
 	if new_state == self.state then
 		return
